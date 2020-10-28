@@ -151,8 +151,20 @@ class PublicUserApiTests(TestCase):
                 'password': 'new-pswd',
                 'name': 'new-Test-user'
             } # details diff from ones given in setUp()
-            response = self.client.patch(ME_URL, payload) # update
+            response = self.client.put(ME_URL, payload) # put vs patch:
+            # put is used to update the entire object, patch is used to
+            # update only specific fields of the object
             self.user.refresh_from_db()
             self.assertEqual(self.user.name, payload['name'])
             self.assertTrue(self.user.check_password(payload['password']))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # How to test update user profile?
+        # 1. Download "mod header" chrome extension
+        # 2. Add a row: key="Authorization" value=tokenid (You can update as
+        # long as token id you give here do not expire, if expired call
+        # api/user/create/token/ again)
+        # 3. Call api/user/me/, you can update email, name, password here
+        # Update all at once if you use 'put', to update only specific fields
+        # use 'patch'
+        # 4. After updating check user login with updated credentials
